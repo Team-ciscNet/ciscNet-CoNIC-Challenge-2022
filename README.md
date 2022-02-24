@@ -29,7 +29,7 @@ conda env create -f requirements.yml
 Activate the virtual environment:
 
 ```
-conda activate ciscnet_conic_challange_ve
+conda activate ciscnet_conic_challenge_ve
 ```
 
 ## Data
@@ -69,14 +69,10 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
   - *--eval_split* (default=80): Train set - val set split in % (use best same as for training).
   - *--upsample* (default=False): Apply rescaling (1.25) for inference (results are original scale).
 
-## Results
-
 ## Acknowledgments
 * [https://github.com/TissueImageAnalytics/CoNIC](https://github.com/TissueImageAnalytics/CoNIC)
 * [https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer](https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer) (Ranger optimizer)
 * [https://git.scc.kit.edu/KIT-Sch-GE/2021_segmentation](https://git.scc.kit.edu/KIT-Sch-GE/2021_segmentation) (code basis)
-
-## Publication
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
