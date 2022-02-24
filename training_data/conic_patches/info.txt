@@ -1,0 +1,7 @@
+Directory for the conic_challenge training data. 
+
+1) Copy counts.csv, images.npy, labels.npy from os.lsdf.kit.edu/iai-projects/iai-aida/Daten_CoNIC-Challenge-2022/conic_challenge_patches/conic_challenge/ into 
+the conic_patches folder.
+2) Run train.py to create the final training dataset.
+
+Training data will be automatically created when running train.py. Upsampled training data will be stored in the upsampled folder (when running train.py with the --upsample argument). Original scale training data will be stored in the original_scale folder (when running train.py without the --upsample argument).

@@ -1,0 +1,8 @@
+Directory for the training data:
+
+For the conic_challenge_patches dataset:
+1) Copy counts.csv, images.npy, labels.npy from os.lsdf.kit.edu/iai-projects/iai-aida/Daten_CoNIC-Challenge-2022/conic_challenge_patches/conic_challenge/ into the conic_patches folder.
+2) Run train.py to create the final training dataset.
+
+For the liard dataset
+Not used yet.
