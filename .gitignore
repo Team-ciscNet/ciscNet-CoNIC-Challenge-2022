@@ -1,0 +1,26 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# project file
+.idea
+.vscode
+
+# data files
+*.csv
+*.mpeg
+
+*__pycache__
+*.idea
+*.pth
+
+# image data
+*.tif
+*.tiff
+*.npy
+
+# models and results
+models/*.pth
+models/**/*.json
+models/**/*loss.txt
