@@ -1,0 +1,27 @@
+name: ciscnet_conic_challenge_ve
+channels:
+  - pytorch
+  - conda-forge
+  - anaconda
+dependencies:
+  - cudnn
+  - cudatoolkit=11.3
+  - imgaug
+  - ipython
+  - numpy
+  - opencv=4.5.3
+  - pandas
+  - pillow
+  - python=3.8
+  - pytorch=1.10
+  - scikit-image
+  - scipy=1.7.3
+  - scikit-learn 
+  - imageio
+  - tifffile
+  - torchvision
+  - pip
+  - tqdm
+  - pip:
+    - imagecodecs
+    - ttach
