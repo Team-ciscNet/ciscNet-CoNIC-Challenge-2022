@@ -64,10 +64,26 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
   - *--multi_gpu* (default=False): Use multiple GPUs.
   - *--save_raw_pred* (default=False): Save raw predictions.
   - *--th_cell* (default=0.07): Threshold(s) for adjusting cell size (multiple inputs possible).
-  - *--th_seed* (default=0.45): 'Threshold for seed extraction.
+  - *--th_seed* (default=0.45): Threshold(s) for seed extraction.
   - *--tta* (default=False): Use test-time augmentation.
   - *--eval_split* (default=80): Train set - val set split in % (use best same as for training).
   - *--upsample* (default=False): Apply rescaling (1.25) for inference (results are original scale).
+
+## Challenge Submission Parameters
+Stated are only non-default parameters.
+
+  - train: 
+    - --multi_gpu 
+    - --optimizer "ranger" 
+    - --act_fun "mish" 
+    - --batch_size 16 
+    - --loss_fraction_weights 1 3 1 1 3 3 1 
+    - --weightmap_weights 1 2 1 1 2 2 1 
+    - --loss "weighted_smooth_l1" 
+    - --norm_method "gn"
+  - eval/inference:
+    - --th_cell 0.12
+    - --tta
 
 ## Acknowledgments
 * [https://github.com/TissueImageAnalytics/CoNIC](https://github.com/TissueImageAnalytics/CoNIC)
