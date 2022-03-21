@@ -42,14 +42,14 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
 - train.py: create training data sets and train models
   - *--model_name* (default='conic_model'): Suffix for the model name.
   - *--dataset* (default='conic_patches'): Data to use for training.
-  - *--act_fun* (default='relu'): Activation function.
+  - *--act_fun* (default='mish'): Activation function.
   - *--batch_size* (default=8): Batch size.
   - *--classes* (default=6): Classes to predict.
   - *--filters* (default=[64, 1024]): Filters for U-net.
-  - *--loss* (default='smooth_l1'): Loss function.
+  - *--loss* (default='weighted_smooth_l1'): Loss function.
   - *--multi_gpu* (default=False): Use multiple GPUs.
-  - *--norm_method* (default='bn'): Normalization layer type.
-  - *--optimizer* (default='adam'): Optimizer.
+  - *--norm_method* (default='gn'): Normalization layer type.
+  - *--optimizer* (default='ranger'): Optimizer.
   - *--pool_method* (default='conv'): Downsampling layer type.
   - *--train_split* (default=80): Train set - val set split in %.
   - *--upsample* (default=False): Apply rescaling (factor 1.25).
@@ -63,7 +63,7 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
   - *--batch_size* (default=8): Batch size.
   - *--multi_gpu* (default=False): Use multiple GPUs.
   - *--save_raw_pred* (default=False): Save raw predictions.
-  - *--th_cell* (default=0.07): Threshold(s) for adjusting cell size (multiple inputs possible).
+  - *--th_cell* (default=0.12): Threshold(s) for adjusting cell size (multiple inputs possible).
   - *--th_seed* (default=0.45): Threshold(s) for seed extraction.
   - *--tta* (default=False): Use test-time augmentation.
   - *--eval_split* (default=80): Train set - val set split in % (use best same as for training).
@@ -71,18 +71,12 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
 
 ## Challenge Submission Parameters
 Stated are only non-default parameters.
-
   - train: 
     - --multi_gpu 
-    - --optimizer "ranger" 
-    - --act_fun "mish" 
     - --batch_size 16 
     - --loss_fraction_weights 1 3 1 1 3 3 1 
     - --weightmap_weights 1 2 1 1 2 2 1 
-    - --loss "weighted_smooth_l1" 
-    - --norm_method "gn"
   - eval/inference:
-    - --th_cell 0.12
     - --tta
 
 ## Acknowledgments
