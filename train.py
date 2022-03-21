@@ -24,7 +24,6 @@ def main():
     parser = argparse.ArgumentParser(description='Conic Challenge - Training')
     parser.add_argument('--model_name', '-m', default='conic_model', type=str,
                         help='Building block for the unique model name. Best use a suffix, e.g., "conic_model_mb')
-    parser.add_argument('--dataset', '-ds', default='conic_patches', type=str, help='"conic_patches" or "lizard"')
     parser.add_argument('--act_fun', '-af', default='relu', type=str, help='Activation function')
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--classes', '-c', default=6, type=int, help='Classes to predict')
@@ -34,7 +33,6 @@ def main():
     parser.add_argument('--norm_method', '-nm', default='bn', type=str, help='Normalization method')
     parser.add_argument('--optimizer', '-o', default='adam', type=str, help='Optimizer')
     parser.add_argument('--pool_method', '-pm', default='conv', type=str, help='Pool method')
-    parser.add_argument('--train_split', '-ts', default=80, type=int, help='Train split in %')
     parser.add_argument('--upsample', '-u', default=False, action='store_true', help='Apply rescaling (1.25)')
     parser.add_argument('--channels_in', '-cin', default=3, type=int, help="Number of input channels")
     parser.add_argument('--max_epochs', '-me', default=None, type=int, help='Maximum number of epochs (None: auto defined)')
@@ -58,15 +56,12 @@ def main():
                          f"({len(args.weightmap_weights)})")
 
     # Paths
-    path_data = Path(__file__).parent / 'training_data' / args.dataset
+    path_data = Path(__file__).parent / 'training_data' / 'conic_fixed_train_valid'
     path_models = Path(__file__).parent / 'models'
     if args.upsample:
         path_train_data = path_data / 'upsampled'
     else:
         path_train_data = path_data / 'original_scale'
-
-    if args.dataset == 'lizard':
-        raise NotImplementedError
 
     # Set device for using CPU or GPU
     device, num_gpus = torch.device("cuda" if torch.cuda.is_available() else "cpu"), 1
@@ -76,19 +71,24 @@ def main():
         num_gpus = torch.cuda.device_count()
 
     # Check if training data (labels_train.npy) already exist
-    if not (path_train_data / 'images.npy').is_file() or not (path_train_data / 'labels.npy').is_file() \
-       or not (path_train_data / 'gts.npy').is_file():
+    if not (path_train_data / 'train_labels.npy').is_file() or not (path_train_data / 'valid_labels.npy').is_file():
         # Create training sets
         print(f'No training data found. Creating training data.\nUse upsampling: {args.upsample}')
-        if not (path_data / 'images.npy').is_file():
-            raise Exception('images.npy not found in {}'.format(path_data))
-        if not (path_data / 'labels.npy').is_file():
-            raise Exception('labels.npy not found in {}'.format(path_data))
+        if not (path_data / 'train_imgs.npy').is_file():
+            raise Exception('train_imgs.npy not found in {}'.format(path_data))
+        if not (path_data / 'train_anns.npy').is_file():
+            raise Exception('train_anns.npy not found in {}'.format(path_data))
+        if not (path_data / 'valid_imgs.npy').is_file():
+            raise Exception('valid_imgs.npy not found in {}'.format(path_data))
+        if not (path_data / 'valid_anns.npy').is_file():
+            raise Exception('valid_anns.npy not found in {}'.format(path_data))
         path_train_data.mkdir(exist_ok=True)
-        create_conic_training_sets(path_data=path_data, path_train_data=path_train_data, upsample=args.upsample)
+        create_conic_training_sets(path_data=path_data, path_train_data=path_train_data, upsample=args.upsample,
+                                   mode='train')
+        create_conic_training_sets(path_data=path_data, path_train_data=path_train_data, upsample=args.upsample,
+                                   mode='valid')
 
     # Train model
-
     run_name = utils.unique_path(path_models, args.model_name + '_{:02d}.pth').stem
 
     # Get CNN (double encoder U-Net)
@@ -105,7 +105,6 @@ def main():
                      'optimizer': args.optimizer,
                      'run_name': run_name,
                      'max_epochs': args.max_epochs,
-                     'train_split': args.train_split,
                      'upsample': args.upsample,
                      'loss_fraction_weights': args.loss_fraction_weights,
                      'weightmap_weights': args.weightmap_weights
@@ -123,14 +122,10 @@ def main():
     # Load training and validation set
     data_transforms = augmentors(min_value=0, max_value=255)
     train_configs['data_transforms'] = str(data_transforms)
-    if args.dataset == "conic_patches":
-        datasets = {x: ConicDataset(root_dir=path_train_data,
-                                    mode=x,
-                                    transform=data_transforms[x],
-                                    train_split=args.train_split)
-                    for x in ['train', 'val']}
-    else:
-        raise NotImplementedError(f'Dataset {args.dataset} not implemented')
+    datasets = {x: ConicDataset(root_dir=path_train_data,
+                                mode=x,
+                                transform=data_transforms[x])
+                for x in ['train', 'val']}
 
     if not train_configs['max_epochs']:  # Get number of training epochs depending on dataset size if not given
         train_configs['max_epochs'] = get_max_epochs(len(datasets['train']) + len(datasets['val']))
@@ -138,8 +133,8 @@ def main():
     # Train model
     best_loss = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models)
 
-    # Fine-tune with cosine annealing for Ranger models
-    # Does not help in most cases (also our submitted model is without cosine annealing)
+    # Fine-tune with cosine annealing for Ranger models (does not really work and the challenge model is a model
+    # without cosine annealing.
     # if train_configs['optimizer'] == 'ranger':
     #     net = build_unet(act_fun=train_configs['architecture'][2],
     #                      pool_method=train_configs['architecture'][1],

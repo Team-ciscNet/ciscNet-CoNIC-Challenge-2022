@@ -24,28 +24,24 @@ def main():
     # Get arguments
     parser = argparse.ArgumentParser(description='Conic Challenge - Evaluation')
     parser.add_argument('--model', '-m', required=True, type=str, help='Model to use')
-    parser.add_argument('--dataset', '-ds', default='conic_patches', type=str, help='"conic_patches" or "lizard"')
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--multi_gpu', '-mgpu', default=False, action='store_true', help='Use multiple GPUs')
     parser.add_argument('--save_raw_pred', '-srp', default=False, action='store_true', help='Save raw predictions')
     parser.add_argument('--th_cell', '-tc', default=0.07, nargs='+', help='Threshold for adjusting cell size')
     parser.add_argument('--th_seed', '-ts', default=0.45, nargs='+', help='Threshold for seeds')
     parser.add_argument('--tta', '-tta', default=False, action='store_true', help='Use test-time augmentation')
-    parser.add_argument('--eval_split', '-es', default=80, type=int, help='Train split in %')
     parser.add_argument('--upsample', '-u', default=False, action='store_true', help='Apply rescaling (1.25) for inference')
     parser.add_argument('--calc_perfect_class_metric', '-cpcm', default=False, action='store_true',
                         help='Calculate metric for predicted segmentation and ground truth classification')
     args = parser.parse_args()
 
     # Paths
+    path_data = Path(__file__).parent / 'training_data' / 'conic_fixed_train_valid'
     path_models = Path(__file__).parent / 'models'
     if args.upsample:
-        path_train_data = Path(__file__).parent / 'training_data' / args.dataset / 'upsampled'
+        path_train_data = path_data / 'upsampled'
     else:
-        path_train_data = Path(__file__).parent / 'training_data' / args.dataset / 'original_scale'
-
-    if args.dataset == 'lizard':
-        raise NotImplementedError
+        path_train_data = path_data / 'original_scale'
 
     # Set device for using CPU or GPU
     device, num_gpus = torch.device("cuda" if torch.cuda.is_available() else "cpu"), 1
@@ -54,38 +50,38 @@ def main():
     if args.multi_gpu:
         num_gpus = torch.cuda.device_count()
         
-    # Check if data to evaluate exists
-    if not (path_train_data / 'images.npy').is_file() or not (path_train_data / 'labels.npy').is_file() \
-       or not (path_train_data / 'gts.npy').is_file():
+    # Check if training data (labels_train.npy) already exist
+    if not (path_train_data / 'train_labels.npy').is_file() or not (path_train_data / 'valid_labels.npy').is_file():
         # Create training sets
         print(f'No training data found. Creating training data.\nUse upsampling: {args.upsample}')
-        if not (path_train_data.parent / 'images.npy').is_file():
-            raise Exception('images.npy not found in {}'.format(path_train_data.parent))
-        if not (path_train_data.parent / 'labels.npy').is_file():
-            raise Exception('labels.npy not found in {}'.format(path_train_data.parent))
+        if not (path_data / 'train_imgs.npy').is_file():
+            raise Exception('train_imgs.npy not found in {}'.format(path_data))
+        if not (path_data / 'train_anns.npy').is_file():
+            raise Exception('train_anns.npy not found in {}'.format(path_data))
+        if not (path_data / 'valid_imgs.npy').is_file():
+            raise Exception('valid_imgs.npy not found in {}'.format(path_data))
+        if not (path_data / 'valid_anns.npy').is_file():
+            raise Exception('valid_anns.npy not found in {}'.format(path_data))
         path_train_data.mkdir(exist_ok=True)
-        create_conic_training_sets(path_data=path_train_data.parent,
-                                   path_train_data=path_train_data,
-                                   upsample=args.upsample)
+        create_conic_training_sets(path_data=path_data, path_train_data=path_train_data, upsample=args.upsample,
+                                   mode='train')
+        create_conic_training_sets(path_data=path_data, path_train_data=path_train_data, upsample=args.upsample,
+                                   mode='valid')
 
     # Load model
     model = path_models / "{}.pth".format(args.model)
 
     # Directory for results
-    path_seg_results = path_train_data / f"{model.stem}_{args.eval_split}"
+    path_seg_results = path_train_data / f"{model.stem}"
     path_seg_results.mkdir(exist_ok=True)
     print(f"Evaluation of {model.stem}. Seed thresholds: {args.th_seed}, mask thresholds: {args.th_cell}, "
           f"upsampling: {args.upsample}, tta: {args.tta}")
 
     inference_args = deepcopy(args)
     
-    if args.dataset == "conic_patches":
-        dataset = ConicDataset(root_dir=path_train_data,
-                               mode="eval",
-                               transform=ToTensor(min_value=0, max_value=255),
-                               train_split=args.eval_split)
-    else:
-        raise NotImplementedError(f'Dataset {args.dataset} not implemented')
+    dataset = ConicDataset(root_dir=path_train_data,
+                           mode="eval",
+                           transform=ToTensor(min_value=0, max_value=255))
 
     inference_2d(model=model,
                  dataset=dataset,
@@ -121,20 +117,13 @@ def main():
         else:
             metrics_perfect_class = -1
 
-        # r2 metric
-        pred_counts = pd.read_csv(path_seg_results_th / "counts.csv")
-        gt_counts = dataset.counts
-        gt_counts = gt_counts.sort_index()
-        r2 = get_multi_r2(gt_counts, pred_counts)
-        print(f"  R2: {r2}")
-
-        result = pd.DataFrame([[args.model, args.dataset, args.upsample, th[0], th[1], metrics[0], metrics[1],
-                                metrics_perfect_class, r2, args.tta]],
-                              columns=["model_name", "dataset", "upsampling", "th_cell", "th_seed", "multi_pq+", "pq_metrics_avg",
-                                       "multi_pq+_perfect_class", "R2", "tta"])
+        result = pd.DataFrame([[args.model, args.upsample, th[0], th[1], metrics[0], metrics[1],
+                                metrics_perfect_class, args.tta]],
+                              columns=["model_name", "upsampling", "th_cell", "th_seed", "multi_pq+", "pq_metrics_avg",
+                                       "multi_pq+_perfect_class", "tta"])
         
-        result.to_csv(Path(__file__).parent / f"scores{args.eval_split}.csv",
-                      header=not (Path(__file__).parent / f"scores{args.eval_split}.csv").exists(),
+        result.to_csv(Path(__file__).parent / "scores_post-challenge-analysis.csv",
+                      header=not (Path(__file__).parent / "scores_post-challenge-analysis.csv").exists(),
                       index=False,
                       mode="a")
 

@@ -7,7 +7,7 @@ from skimage.transform import rescale
 from segmentation.training.train_data_representations import distance_label
 
 
-def create_conic_training_sets(path_data, path_train_data, upsample):
+def create_conic_training_sets(path_data, path_train_data, upsample, mode):
     """ Create training sets for CoNIC Challenge data.
 
     :param path_data: Path to the directory containing the CoNIC Challenge data / training data.
@@ -16,16 +16,15 @@ def create_conic_training_sets(path_data, path_train_data, upsample):
         :type path_data: Pathlib Path object.
     :param upsample: Apply upsampling (factor 1.25).
         :type upsample: bool
+    :param mode: 'train' or 'valid'
+        :type mode: str
     :return: None
     """
 
-    imgs = np.load(path_data / "images.npy")
-    gts = np.load(path_data / "labels.npy")
-    counts = pd.read_csv(path_data / "counts.csv")
+    print(f"Create data for mode {mode}.")
 
-    print("0.1/99.9 percentile channel 0: {}".format(np.percentile(imgs[..., 0], (0.1, 99.9))))
-    print("0.1/99.9 percentile channel 1: {}".format(np.percentile(imgs[..., 1], (0.1, 99.9))))
-    print("0.1/99.9 percentile channel 2: {}".format(np.percentile(imgs[..., 2], (0.1, 99.9))))
+    imgs = np.load(path_data / f"{mode}_imgs.npy")
+    gts = np.load(path_data / f"{mode}_anns.npy")
 
     if upsample:  # results for conic patches in 320-by-320 patches
         scale = 1.25
@@ -72,23 +71,21 @@ def create_conic_training_sets(path_data, path_train_data, upsample):
     imgs = np.delete(imgs, np.array(slice_ids), axis=0)
     labels_train = np.delete(labels_train, np.array(slice_ids), axis=0)
     gts = np.delete(gts, np.array(slice_ids), axis=0)
-    counts = counts.drop(slice_ids)
 
-    np.save(path_train_data / "images.npy", imgs)
-    np.save(path_train_data / "labels.npy", labels_train)
-    np.save(path_train_data / "gts.npy", gts)
-    counts.to_csv(path_train_data / "counts.csv", index=False)
+    np.save(path_train_data / f"{mode}_images.npy", imgs)
+    np.save(path_train_data / f"{mode}_labels.npy", labels_train)
+    np.save(path_train_data / f"{mode}_gts.npy", gts)
 
     # save tiffs for imagej visualization
-    tifffile.imsave(path_train_data / "labels_channel_0.tiff", labels_train[..., 0])
-    tifffile.imsave(path_train_data / "labels_channel_1.tiff", labels_train[..., 1])
-    tifffile.imsave(path_train_data / "labels_channel_2.tiff", labels_train[..., 2])
-    tifffile.imsave(path_train_data / "labels_channel_3.tiff", labels_train[..., 3])
-    tifffile.imsave(path_train_data / "labels_channel_4.tiff", labels_train[..., 4])
-    tifffile.imsave(path_train_data / "labels_channel_5.tiff", labels_train[..., 5])
-    tifffile.imsave(path_train_data / "labels_channel_6.tiff", labels_train[..., 6])
-    tifffile.imsave(path_train_data / "gts_instance.tiff", gts[..., 0])
-    tifffile.imsave(path_train_data / "gts_class.tiff", gts[..., 1])
-    tifffile.imsave(path_train_data / "images.tiff", imgs)
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_0.tiff", labels_train[..., 0])
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_1.tiff", labels_train[..., 1])
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_2.tiff", labels_train[..., 2])
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_3.tiff", labels_train[..., 3])
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_4.tiff", labels_train[..., 4])
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_5.tiff", labels_train[..., 5])
+    tifffile.imsave(path_train_data / f"{mode}_labels_channel_6.tiff", labels_train[..., 6])
+    tifffile.imsave(path_train_data / f"{mode}_gts_instance.tiff", gts[..., 0])
+    tifffile.imsave(path_train_data / f"{mode}_gts_class.tiff", gts[..., 1])
+    tifffile.imsave(path_train_data / f"{mode}_images.tiff", imgs)
     
     return None
