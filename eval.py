@@ -28,7 +28,7 @@ def main():
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--multi_gpu', '-mgpu', default=False, action='store_true', help='Use multiple GPUs')
     parser.add_argument('--save_raw_pred', '-srp', default=False, action='store_true', help='Save raw predictions')
-    parser.add_argument('--th_cell', '-tc', default=0.07, nargs='+', help='Threshold for adjusting cell size')
+    parser.add_argument('--th_cell', '-tc', default=0.12, nargs='+', help='Threshold for adjusting cell size')
     parser.add_argument('--th_seed', '-ts', default=0.45, nargs='+', help='Threshold for seeds')
     parser.add_argument('--tta', '-tta', default=False, action='store_true', help='Use test-time augmentation')
     parser.add_argument('--eval_split', '-es', default=80, type=int, help='Train split in %')
@@ -95,7 +95,7 @@ def main():
                  args=inference_args,
                  num_gpus=num_gpus,
                  use_tta=args.tta,
-                 mode='eval')  # uses validation set
+                 mode='eval')  # uses test set
     
     # Calculate metrics
     ths = list(product(args.th_cell if isinstance(args.th_cell, list) else [args.th_cell],
@@ -114,7 +114,8 @@ def main():
         gts = np.transpose(np.array(gts), (0, 2, 3, 1))
 
         print(f"Calculate metrics (upsampling: {args.upsample}, th_cell: {th[0]}, th_seed: {th[1]}):")
-        metrics = np.squeeze(get_conic_metrics(gts, preds).values)
+        metrics_df = get_conic_metrics(gts, preds)
+        metrics = np.squeeze(metrics_df.values)
         if args.calc_perfect_class_metric:
             print(f"Calculate metrics for prediction with ground truth classification:")
             metrics_perfect_class = get_perfect_class_metric(gts, preds)[0]
@@ -124,7 +125,7 @@ def main():
         # r2 metric
         pred_counts = pd.read_csv(path_seg_results_th / "counts.csv")
         gt_counts = dataset.counts
-        gt_counts = gt_counts.sort_index()
+        # gt_counts = gt_counts.sort_index()  # already done in dataset
         r2 = get_multi_r2(gt_counts, pred_counts)
         print(f"  R2: {r2}")
 
@@ -137,6 +138,8 @@ def main():
                       header=not (Path(__file__).parent / f"scores{args.eval_split}.csv").exists(),
                       index=False,
                       mode="a")
+
+        # metrics_df.to_csv(path_seg_results_th / f"scores{args.eval_split}.csv")
 
 
 if __name__ == "__main__":
