@@ -25,14 +25,14 @@ def main():
     parser.add_argument('--model_name', '-m', default='conic_model', type=str,
                         help='Building block for the unique model name. Best use a suffix, e.g., "conic_model_mb')
     parser.add_argument('--dataset', '-ds', default='conic_patches', type=str, help='"conic_patches" or "lizard"')
-    parser.add_argument('--act_fun', '-af', default='relu', type=str, help='Activation function')
+    parser.add_argument('--act_fun', '-af', default='mish', type=str, help='Activation function')
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--classes', '-c', default=6, type=int, help='Classes to predict')
     parser.add_argument('--filters', '-f', nargs=2, type=int, default=[64, 1024], help='Filters for U-net')
     parser.add_argument('--loss', '-l', default='smooth_l1', type=str, help='Loss function')
     parser.add_argument('--multi_gpu', '-mgpu', default=False, action='store_true', help='Use multiple GPUs')
-    parser.add_argument('--norm_method', '-nm', default='bn', type=str, help='Normalization method')
-    parser.add_argument('--optimizer', '-o', default='adam', type=str, help='Optimizer')
+    parser.add_argument('--norm_method', '-nm', default='gn', type=str, help='Normalization method')
+    parser.add_argument('--optimizer', '-o', default='ranger', type=str, help='Optimizer')
     parser.add_argument('--pool_method', '-pm', default='conv', type=str, help='Pool method')
     parser.add_argument('--train_split', '-ts', default=80, type=int, help='Train split in %')
     parser.add_argument('--upsample', '-u', default=False, action='store_true', help='Apply rescaling (1.25)')
@@ -138,8 +138,8 @@ def main():
     # Train model
     best_loss = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models)
 
-    # Fine-tune with cosine annealing for Ranger models
-    # Does not help in most cases (also our submitted model is without cosine annealing)
+    # cosine annealing seems not to help in most cases (has also not been used for our submitted model)
+    # # Fine-tune with cosine annealing for Ranger models
     # if train_configs['optimizer'] == 'ranger':
     #     net = build_unet(act_fun=train_configs['architecture'][2],
     #                      pool_method=train_configs['architecture'][1],
