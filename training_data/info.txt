@@ -3,7 +3,7 @@ Directory for the training data.
 For the conic_challenge_patches dataset:
 	Save counts.csv, images.npy, labels.npy into the conic_patches folder.
 
-For the liard dataset:
+For the lizard dataset:
 	Not used yet.
 
 For the post-challenge analysis:
