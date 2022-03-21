@@ -139,23 +139,24 @@ def main():
     best_loss = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models)
 
     # Fine-tune with cosine annealing for Ranger models
-    if train_configs['optimizer'] == 'ranger':
-        net = build_unet(act_fun=train_configs['architecture'][2],
-                         pool_method=train_configs['architecture'][1],
-                         normalization=train_configs['architecture'][3],
-                         device=device,
-                         num_gpus=num_gpus,
-                         ch_in=train_configs['architecture'][5],
-                         ch_out=train_configs['architecture'][6],
-                         filters=train_configs['architecture'][4])
-
-        # Get best weights as starting point
-        net = get_weights(net=net, weights=str(path_models / '{}.pth'.format(run_name)), num_gpus=num_gpus,
-                          device=device)
-        # Train further
-        if train_configs['max_epochs'] >= 10 and args.train_split < 100:  # 2nd run only works for epochs > 10
-            _ = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models,
-                      best_loss=best_loss)
+    # Does not help in most cases (also our submitted model is without cosine annealing)
+    # if train_configs['optimizer'] == 'ranger':
+    #     net = build_unet(act_fun=train_configs['architecture'][2],
+    #                      pool_method=train_configs['architecture'][1],
+    #                      normalization=train_configs['architecture'][3],
+    #                      device=device,
+    #                      num_gpus=num_gpus,
+    #                      ch_in=train_configs['architecture'][5],
+    #                      ch_out=train_configs['architecture'][6],
+    #                      filters=train_configs['architecture'][4])
+    #
+    #     # Get best weights as starting point
+    #     net = get_weights(net=net, weights=str(path_models / '{}.pth'.format(run_name)), num_gpus=num_gpus,
+    #                       device=device)
+    #     # Train further
+    #     if train_configs['max_epochs'] >= 10 and args.train_split < 100:  # 2nd run only works for epochs > 10
+    #         _ = train(net=net, datasets=datasets, configs=train_configs, device=device, path_models=path_models,
+    #                   best_loss=best_loss)
 
     # Write information to json-file
     utils.write_train_info(configs=train_configs, path=path_models)
