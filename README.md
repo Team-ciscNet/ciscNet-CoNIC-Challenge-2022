@@ -2,33 +2,27 @@
 
 Nuclear segmentation, classification and quantification within Haematoxylin & Eosin stained histology images.
 
+With the branch **post-challenge-analysis**, a specific train-val split is used for training.
+
 ## CoNIC Challenge 2022
 Our method has been newly developed for the [CoNIC Challenge 2022](https://conic-challenge.grand-challenge.org/) (challenge description [paper](https://arxiv.org/abs/2111.14485)).
 We participated as team **ciscnet**.
 
 ## Prerequisites
-
 * [Anaconda Distribution](https://www.anaconda.com/distribution/#download-section).
 * For GPU use: a CUDA capable GPU (highly recommended).
 
 ## Installation
-
-Clone the repository:
-
+Clone the repository and create a virtual environment:
 ```
 git clone https://git.scc.kit.edu/ciscnet/ciscnet-conic-2022
+cd ./ciscnet-conic-2022
+git switch -c post-challenge-analysis origin/post-challenge-analysis
 ```
 
-Open the Anaconda Prompt (Windows) or Terminal (Linux), go to the repository and create a new virtual environment:
-
+Set up the virtual environment:
 ```
-cd $path_to_your_cloned_repository
 conda env create -f requirements.yml
-```
-
-Activate the virtual environment:
-
-```
 conda activate ciscnet_conic_challenge_ve
 ```
 
@@ -40,18 +34,16 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
 
 ## Usage
 - train.py: create training data sets and train models
-  - *--model_name* (default='conic_model'): Suffix for the model name.
-  - *--dataset* (default='conic_patches'): Data to use for training.
-  - *--act_fun* (default='relu'): Activation function.
+  - *--model_name* (default='post-challenge_model'): Suffix for the model name.
+  - *--act_fun* (default='mish'): Activation function.
   - *--batch_size* (default=8): Batch size.
   - *--classes* (default=6): Classes to predict.
   - *--filters* (default=[64, 1024]): Filters for U-net.
-  - *--loss* (default='smooth_l1'): Loss function.
+  - *--loss* (default='weighted_smooth_l1'): Loss function.
   - *--multi_gpu* (default=False): Use multiple GPUs.
-  - *--norm_method* (default='bn'): Normalization layer type.
-  - *--optimizer* (default='adam'): Optimizer.
+  - *--norm_method* (default='gn'): Normalization layer type.
+  - *--optimizer* (default='ranger'): Optimizer.
   - *--pool_method* (default='conv'): Downsampling layer type.
-  - *--train_split* (default=80): Train set - val set split in %.
   - *--upsample* (default=False): Apply rescaling (factor 1.25).
   - *--channels_in* (default=3): Number of input channels.
   - *--max_epochs* (default=None): Maximum number of epochs (None: auto defined).
@@ -59,31 +51,21 @@ Currently, only the CoNIC Challenge patches of the Lizard dataset are supported.
   - *--weightmap_weights* (default=None): Weights for the foreground for each class (first weight: summed up channel.").
 - eval.py: evaluate specified model for various thresholds on the validation set
   - *--model*: Model to evaluate.
-  - *--dataset* (default='conic_patches'): Data to use for evaluation.
   - *--batch_size* (default=8): Batch size.
   - *--multi_gpu* (default=False): Use multiple GPUs.
   - *--save_raw_pred* (default=False): Save raw predictions.
-  - *--th_cell* (default=0.07): Threshold(s) for adjusting cell size (multiple inputs possible).
+  - *--th_cell* (default=0.12): Threshold(s) for adjusting cell size (multiple inputs possible).
   - *--th_seed* (default=0.45): Threshold(s) for seed extraction.
   - *--tta* (default=False): Use test-time augmentation.
-  - *--eval_split* (default=80): Train set - val set split in % (use best same as for training).
   - *--upsample* (default=False): Apply rescaling (1.25) for inference (results are original scale).
 
 ## Challenge Submission Parameters
 Stated are only non-default parameters.
-
   - train: 
     - --multi_gpu 
-    - --optimizer "ranger" 
-    - --act_fun "mish" 
     - --batch_size 16 
     - --loss_fraction_weights 1 3 1 1 3 3 1 
-    - --weightmap_weights 1 2 1 1 2 2 1 
-    - --loss "weighted_smooth_l1" 
-    - --norm_method "gn"
-  - eval/inference:
-    - --th_cell 0.12
-    - --tta
+    - --weightmap_weights 1 2 1 1 2 2 1
 
 ## Acknowledgments
 * [https://github.com/TissueImageAnalytics/CoNIC](https://github.com/TissueImageAnalytics/CoNIC)
