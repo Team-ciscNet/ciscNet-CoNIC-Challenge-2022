@@ -2,33 +2,23 @@
 
 Nuclear segmentation, classification and quantification within Haematoxylin & Eosin stained histology images.
 
+To reproduce the results of our 4-page paper submitted to the [IEEE ISBI 2022](https://biomedicalimaging.org/2022/), go to the branch **isbi2022**. For the post-challenge analysis with a specified train-val split, go to the branch **post-processing-analysis**.
+
 ## CoNIC Challenge 2022
 Our method has been newly developed for the [CoNIC Challenge 2022](https://conic-challenge.grand-challenge.org/) (challenge description [paper](https://arxiv.org/abs/2111.14485)).
 We participated as team **ciscnet**.
 
 ## Prerequisites
-
 * [Anaconda Distribution](https://www.anaconda.com/distribution/#download-section).
 * For GPU use: a CUDA capable GPU (highly recommended).
 
 ## Installation
-
-Clone the repository:
+Clone the repository and set up a virtual environment:
 
 ```
 git clone https://git.scc.kit.edu/ciscnet/ciscnet-conic-2022
-```
-
-Open the Anaconda Prompt (Windows) or Terminal (Linux), go to the repository and create a new virtual environment:
-
-```
-cd $path_to_your_cloned_repository
+cd ciscnet-conic-2022
 conda env create -f requirements.yml
-```
-
-Activate the virtual environment:
-
-```
 conda activate ciscnet_conic_challenge_ve
 ```
 
