@@ -409,8 +409,13 @@ def get_conic_metrics(trues, preds):
         mpq_list.append(dq * sq)
     mpq_metrics = np.array(mpq_list)
     all_metrics["multi_pq+"] = [np.mean(mpq_metrics)]
-
     all_metrics["pq_metrics_avg"] = [pq_metrics_avg]
+    all_metrics["multi_pq+ (neu)"] = [mpq_metrics[0]]
+    all_metrics["multi_pq+ (epi)"] = [mpq_metrics[1]]
+    all_metrics["multi_pq+ (lym)"] = [mpq_metrics[2]]
+    all_metrics["multi_pq+ (pla)"] = [mpq_metrics[3]]
+    all_metrics["multi_pq+ (eos)"] = [mpq_metrics[4]]
+    all_metrics["multi_pq+ (con)"] = [mpq_metrics[5]]
 
     df = pd.DataFrame(all_metrics)
     print(df.to_string(index=False))

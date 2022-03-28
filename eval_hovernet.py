@@ -15,7 +15,6 @@ def main():
     args = parser.parse_args()
 
     # Paths
-    path_train_data = Path(__file__).parent / 'training_data' / 'conic_patches' / 'original_scale'
     path_results = Path(args.path)
 
     preds = np.load(path_results / 'valid_pred.npy')
@@ -32,13 +31,17 @@ def main():
     r2 = get_multi_r2(gt_counts, pred_counts)
     print(f"  R2: {r2}")
 
-    result = pd.DataFrame([[path_results.parent.stem, metrics[0], metrics[1], r2]],
-                          columns=["model_name", "multi_pq+", "pq_metrics_avg", "R2"])
+    result = pd.DataFrame([[path_results.parent.stem, metrics[2], metrics[3], metrics[4], metrics[5], metrics[6],
+                            metrics[7], metrics[0], metrics[1], r2]],
+                          columns=["model_name", "multi_pq+ (neu)", "multi_pq+ (epi)", "multi_pq+ (lym)",
+                                   "multi_pq+ (pla)", "multi_pq+ (eos)",  "multi_pq+ (con)", "multi_pq+",
+                                   "pq_metrics_avg", "R2"])
 
-    result.to_csv(Path(__file__).parent / f"scores_hovernet.csv",
-                  header=not (Path(__file__).parent / f"scores_hovernet.csv").exists(),
+    result.to_csv(Path(__file__).parent / "scores_isbi_hovernet.csv",
+                  header=not (Path(__file__).parent / "scores_isbi_hovernet.csv").exists(),
                   index=False,
                   mode="a")
+
 
 if __name__ == "__main__":
     main()

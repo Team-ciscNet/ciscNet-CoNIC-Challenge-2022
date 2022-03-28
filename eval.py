@@ -129,17 +129,18 @@ def main():
         r2 = get_multi_r2(gt_counts, pred_counts)
         print(f"  R2: {r2}")
 
-        result = pd.DataFrame([[args.model, args.dataset, args.upsample, th[0], th[1], metrics[0], metrics[1],
+        result = pd.DataFrame([[args.model, args.dataset, args.upsample, th[0], th[1], metrics[2], metrics[3],
+                                metrics[4], metrics[5], metrics[6], metrics[7], metrics[0], metrics[1],
                                 metrics_perfect_class, r2, args.tta]],
-                              columns=["model_name", "dataset", "upsampling", "th_cell", "th_seed", "multi_pq+", "pq_metrics_avg",
-                                       "multi_pq+_perfect_class", "R2", "tta"])
+                              columns=["model_name", "dataset", "upsampling", "th_cell", "th_seed", "multi_pq+ (neu)",
+                                       "multi_pq+ (epi)", "multi_pq+ (lym)", "multi_pq+ (pla)", "multi_pq+ (eos)",
+                                       "multi_pq+ (con)", "multi_pq+", "pq_metrics_avg", "multi_pq+_perfect_class",
+                                       "R2", "tta"])
         
-        result.to_csv(Path(__file__).parent / f"scores{args.eval_split}.csv",
-                      header=not (Path(__file__).parent / f"scores{args.eval_split}.csv").exists(),
+        result.to_csv(Path(__file__).parent / "scores_isbi.csv",
+                      header=not (Path(__file__).parent / "scores_isbi.csv").exists(),
                       index=False,
                       mode="a")
-
-        # metrics_df.to_csv(path_seg_results_th / f"scores{args.eval_split}.csv")
 
 
 if __name__ == "__main__":
