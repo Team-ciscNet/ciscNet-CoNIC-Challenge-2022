@@ -2,7 +2,7 @@
 
 Nuclear segmentation, classification and quantification within Haematoxylin & Eosin stained histology images.
 
-To reproduce the results of our 4-page paper submitted to the [IEEE ISBI 2022](https://biomedicalimaging.org/2022/), go to the branch **isbi2022**. For the post-challenge analysis with a specified train-val split, go to the branch **post-processing-analysis**.
+To reproduce the results of our [ISBI publication](https://ieeexplore.ieee.org/document/9854734), go to the branch **isbi2022**. For the post-challenge analysis with a specified train-val split, go to the branch **post-processing-analysis**.
 
 ## CoNIC Challenge 2022
 Our method has been newly developed for the [CoNIC Challenge 2022](https://conic-challenge.grand-challenge.org/) (challenge description [paper](https://arxiv.org/abs/2111.14485)).
