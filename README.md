@@ -69,6 +69,9 @@ Stated are only non-default parameters.
   - eval/inference:
     - --tta
 
+## Publication
+M. Böhland et al. (2022): Ciscnet - a Single-Branch Cell Nucleus Instance Segmentation and Classification Network, 2022 IEEE International Symposium on Biomedical Imaging Challenges (ISBIC), [doi:10.1109/ISBIC56247.2022.9854734](https://ieeexplore.ieee.org/document/9854734).
+
 ## Acknowledgments
 * [https://github.com/TissueImageAnalytics/CoNIC](https://github.com/TissueImageAnalytics/CoNIC)
 * [https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer](https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer) (Ranger optimizer)
