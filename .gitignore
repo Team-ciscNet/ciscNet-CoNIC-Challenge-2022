@@ -21,6 +21,4 @@ __pycache__/
 *.npy
 
 # models and results
-models/*.pth
-models/**/*.json
 models/**/*loss.txt
